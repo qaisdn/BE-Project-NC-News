@@ -3,6 +3,7 @@ const db = require("../db/connection");
 const testData = require("../db/data/test-data");
 const seed = require("../db/seeds/seed");
 const app = require("../app/app");
+const endpointsJSON = require("../endpoints.json");
 
 beforeEach(() => {
   return seed(testData);
@@ -18,7 +19,6 @@ describe("NC News API testing", () => {
         .get("/api/topics")
         .expect(200)
         .then(({ body }) => {
-          console.log(body);
           expect(body.topics).toHaveLength(3);
           body.topics.forEach((topic) => {
             expect(topic).toEqual(
@@ -37,6 +37,16 @@ describe("NC News API testing", () => {
         .then(({ body }) => {
           expect(body.msg).toBe("URL not found");
         });
+    });
+    describe("GET/api/info", () => {
+      test("Returns a json representation of all the endpoints within the api ", () => {
+        return request(app)
+          .get("/api/")
+          .expect(200)
+          .then((response) => {
+            expect(response.body).toEqual(endpointsJSON);
+          });
+      });
     });
   });
 });
