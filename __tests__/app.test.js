@@ -78,4 +78,49 @@ describe("NC News API testing", () => {
         });
     });
   });
+  describe("api/articles", () => {
+    test("returns an array of articles with the appropriates", () => {
+      return request(app)
+        .get("/api/articles")
+        .expect(200)
+        .then(({ body }) => {
+          expect(body.topics).toHaveLength(13);
+          body.topics.forEach((topic) => {
+            expect(topic).toEqual(
+              expect.objectContaining({
+                article_id: expect.any(Number),
+                article_img_url: expect.any(String),
+                author: expect.any(String),
+                body: expect.any(String),
+                created_at: expect.any(String),
+                title: expect.any(String),
+                topic: expect.any(String),
+                votes: expect.any(Number),
+                comment_count: expect.any(String),
+              })
+            );
+          });
+        });
+    });
+    test("data should sorted by the date it was created in descending order", () => {
+      return request(app)
+        .get("/api/articles")
+        .expect(200)
+        .then(({ body: { topics } }) => {
+          expect(topics[0].created_at).toBe("2020-11-03T09:12:00.000Z");
+          expect(topics[topics.length - 1].created_at).toBe(
+            "2020-01-07T14:08:00.000Z"
+          );
+        });
+    });
+    test("comment count should be different according to the total comments in any given article ", () => {
+      return request(app)
+        .get("/api/articles")
+        .expect(200)
+        .then(({ body: { topics } }) => {
+          expect(topics[5].comment_count).toBe("2");
+          expect(topics[topics.length - 1].comment_count).toBe("0");
+        });
+    });
+  });
 });
