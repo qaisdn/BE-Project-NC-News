@@ -123,4 +123,43 @@ describe("NC News API testing", () => {
         });
     });
   });
+  describe("/api/articles/:article_id/comments", () => {
+    test("returns an array of comments with appropriate properties", () => {
+      return request(app)
+        .get("/api/articles/1/comments")
+        .expect(200)
+        .then(({ body }) => {
+          expect(body.comments).toEqual({
+            article_id: 1,
+            author: "icellusedkars",
+            body: "I hate streaming noses",
+            comment_id: 5,
+            created_at: "2020-11-03T21:00:00.000Z",
+            votes: 0,
+          });
+        });
+    });
+    test("comments should return the most recent one first ", () => {
+      return request(app)
+        .get("/api/articles/1/comments")
+        .expect(200)
+        .then(({ body }) => {
+          expect(body.comments).not.toEqual({
+            author: "butter_bridge",
+            body: "The beautiful thing about treasure is that it exists. Got to find out what kind of sheets these are; not cotton, not rayon, silky.",
+            comment_id: 2,
+            created_at: "2020-10-31T03:03:00.000Z",
+            votes: 14,
+          });
+        });
+    });
+    test("404 error for endpoint request to non existent articles ", () => {
+      return request(app)
+        .get("/api/articles/98/comments")
+        .expect(404)
+        .then(({ body }) => {
+          expect(body.msg).toBe("article not found");
+        });
+    });
+  });
 });

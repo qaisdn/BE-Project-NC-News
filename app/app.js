@@ -7,6 +7,7 @@ const {
   getAllArticlesByID,
   getAllArticles,
 } = require("../controllers/article-controllers");
+const { getComments } = require("../controllers/comments-controllers");
 
 app.use(express.json());
 
@@ -14,6 +15,7 @@ app.get("/api/", getAPIinfo);
 app.get("/api/topics", getAllTopics);
 app.get("/api/articles", getAllArticles);
 app.get("/api/articles/:article_id", getAllArticlesByID);
+app.get("/api/articles/:article_id/comments", getComments);
 
 app.use((error, request, response, next) => {
   if (error.status) {
