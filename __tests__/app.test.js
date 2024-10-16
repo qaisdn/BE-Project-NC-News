@@ -297,4 +297,9 @@ describe("NC News API testing", () => {
         });
     });
   });
+  describe("DELETE/api/comments/id", () => {
+    test("deletes the comment when given and id and responds with status 204", () => {
+      return request(app).delete("/api/comments/1").expect(204);
+    });
+  });
 });
