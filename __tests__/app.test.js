@@ -162,4 +162,73 @@ describe("NC News API testing", () => {
         });
     });
   });
+  describe("POST /api/articles/:article_id/comments", () => {
+    const newComment = { username: "icellusedkars", body: "It's snowing!" };
+    test("returns posted comment with username and body", () => {
+      return request(app)
+        .post("/api/articles/1/comments")
+        .send(newComment)
+        .expect(201)
+        .then(({ body }) => {
+          expect(body.newComment).toEqual(
+            expect.objectContaining({
+              article_id: expect.any(Number),
+              author: expect.any(String),
+              body: expect.any(String),
+              comment_id: expect.any(Number),
+              created_at: expect.any(String),
+              votes: expect.any(Number),
+            })
+          );
+        });
+    });
+    test("returns bad request and the status code 400 for usernames not already in the database", () => {
+      const newComment = {
+        username: "Jacob4181",
+        body: "Just let me comment plss",
+      };
+      return request(app)
+        .post(`/api/articles/2/comments`)
+        .send(newComment)
+        .expect(400)
+        .then((response) => {
+          expect(response.body.msg).toBe("Bad Request");
+        });
+    });
+    test("returns 'Article not found' and the status code 404 for comments made to non existent articles", () => {
+      const newComment = {
+        username: "Jacob4181",
+        body: "Yeah man I love article 5256261",
+      };
+      return request(app)
+        .post(`/api/articles/5256261/comments`)
+        .send(newComment)
+        .expect(404)
+        .then((response) => {
+          expect(response.body.msg).toBe("article not found");
+        });
+    });
+    test("returns 'Bad request' for comments with wrong keys i.e not username/body", () => {
+      const newComment = {
+        profilename: "KotlinFan101",
+        torso: "Hi hi hi hi ",
+      };
+      return request(app)
+        .post(`/api/articles/2/comments`)
+        .send(newComment)
+        .expect(400)
+        .then((response) => {
+          expect(response.body.msg).toBe("Bad Request");
+        });
+    });
+    test("returns 'Bad request' when an empty object is sent through", () => {
+      return request(app)
+        .post(`/api/articles/2/comments`)
+        .send({})
+        .expect(400)
+        .then((response) => {
+          expect(response.body.msg).toBe("Bad Request");
+        });
+    });
+  });
 });
