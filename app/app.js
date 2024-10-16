@@ -6,6 +6,7 @@ const { getAPIinfo } = require("../controllers/endpoint-controllers");
 const {
   getAllArticlesByID,
   getAllArticles,
+  updateVotes,
 } = require("../controllers/article-controllers");
 const {
   getComments,
@@ -20,6 +21,7 @@ app.get("/api/articles", getAllArticles);
 app.get("/api/articles/:article_id", getAllArticlesByID);
 app.get("/api/articles/:article_id/comments", getComments);
 app.post("/api/articles/:article_id/comments", addComment);
+app.patch("/api/articles/:article_id", updateVotes);
 
 app.use((error, request, response, next) => {
   if (error.status) {
@@ -30,7 +32,11 @@ app.use((error, request, response, next) => {
 });
 
 app.use((error, request, response, next) => {
-  if (error.code === "23503" || error.code === "23502") {
+  if (
+    error.code === "23503" ||
+    error.code === "23502" ||
+    error.code === "22P02"
+  ) {
     response.status(400).send({ msg: "Bad Request" });
   } else {
     next(error);
