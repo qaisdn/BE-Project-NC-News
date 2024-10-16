@@ -231,4 +231,70 @@ describe("NC News API testing", () => {
         });
     });
   });
+  describe("PATCH/api/articles/:article_id", () => {
+    test("updates article with correct vote count incremented by 100 ", () => {
+      const votes = { inc_votes: 100 };
+      return request(app)
+        .patch("/api/articles/1")
+        .send(votes)
+        .expect(200)
+        .then((response) => {
+          expect(response.body).toEqual({
+            article: [
+              {
+                article_id: 1,
+                title: "Living in the shadow of a great man",
+                topic: "mitch",
+                author: "butter_bridge",
+                body: "I find this existence challenging",
+                created_at: "2020-07-09T20:11:00.000Z",
+                votes: 200,
+                article_img_url:
+                  "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700",
+              },
+            ],
+          });
+        });
+    });
+    test("updates article with correct vote count decremented by 73 ", () => {
+      const votes = { inc_votes: -73 };
+      return request(app)
+        .patch("/api/articles/1")
+        .send(votes)
+        .expect(200)
+        .then((response) => {
+          const articleTest = response.body.article;
+          articleTest.forEach((element) => {
+            expect(element.votes).toBe(27);
+          });
+        });
+    });
+    test("returns 'Bad request' for incorrect body requests", () => {
+      return request(app)
+        .patch(`/api/articles/1`)
+        .send({ test_votes: false })
+        .expect(400)
+        .then((response) => {
+          expect(response.body.msg).toBe("Bad Request");
+        });
+    });
+    test("returns 'Article not found' and the status code 404 for articles not in the database", () => {
+      return request(app)
+        .patch(`/api/articles/42152`)
+        .send({ inc_votes: 20 })
+        .expect(404)
+        .then((res) => {
+          expect(res.body.msg).toBe("article not found");
+        });
+    });
+    test("returns 'Bad Request' and the status code 400 for an invalid paths", () => {
+      return request(app)
+        .patch(`/api/articles/banana`)
+        .send({ inc_votes: 20 })
+        .expect(400)
+        .then((res) => {
+          expect(res.body.msg).toBe("Bad Request");
+        });
+    });
+  });
 });

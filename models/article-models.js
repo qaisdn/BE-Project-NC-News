@@ -21,3 +21,10 @@ exports.fetchArticles = () => {
       return articles;
     });
 };
+
+exports.alterVotes = (article_id, inc_votes) => {
+  const queryForUpdate = `UPDATE articles SET votes = votes + $1 WHERE article_id = $2 RETURNING *; `;
+  return db.query(queryForUpdate, [inc_votes, article_id]).then(({ rows }) => {
+    return rows;
+  });
+};
