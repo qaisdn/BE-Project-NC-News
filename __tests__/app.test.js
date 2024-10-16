@@ -302,4 +302,31 @@ describe("NC News API testing", () => {
       return request(app).delete("/api/comments/1").expect(204);
     });
   });
+  describe("GET/api/users", () => {
+    test("returns an array of users with the properties avatar url, name and username", () => {
+      return request(app)
+        .get("/api/users")
+        .expect(200)
+        .then(({ body }) => {
+          expect(body.users).toHaveLength(4);
+          body.users.forEach((user) => {
+            expect(user).toEqual(
+              expect.objectContaining({
+                avatar_url: expect.any(String),
+                name: expect.any(String),
+                username: expect.any(String),
+              })
+            );
+          });
+        });
+    });
+    test("404 error with custom message following user inputting incorrect endpoint url", () => {
+      return request(app)
+        .get("/api/userz")
+        .expect(404)
+        .then(({ body }) => {
+          expect(body.msg).toBe("URL not found");
+        });
+    });
+  });
 });
