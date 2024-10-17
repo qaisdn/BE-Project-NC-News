@@ -129,7 +129,7 @@ describe("NC News API testing", () => {
         .get("/api/articles/1/comments")
         .expect(200)
         .then(({ body }) => {
-          expect(body.comments).toEqual({
+          expect(body.comments[0]).toEqual({
             article_id: 1,
             author: "icellusedkars",
             body: "I hate streaming noses",
@@ -159,6 +159,22 @@ describe("NC News API testing", () => {
         .expect(404)
         .then(({ body }) => {
           expect(body.msg).toBe("article not found");
+        });
+    });
+    test("200 status with an empty array when article exists but has no comments", () => {
+      return request(app)
+        .get("/api/articles/2/comments")
+        .expect(200)
+        .then(({ body }) => {
+          expect(body.comments).toEqual([]);
+        });
+    });
+    test("400 error for invalid article ID (e.g., 'banana')", () => {
+      return request(app)
+        .get("/api/articles/banana/comments")
+        .expect(400)
+        .then(({ body }) => {
+          expect(body.msg).toBe("Bad Request");
         });
     });
   });
