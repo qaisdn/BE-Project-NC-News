@@ -65,8 +65,9 @@ describe("NC News API testing", () => {
             votes: 100,
             article_img_url:
               "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700",
+            comment_count: "11",
           });
-          expect(Object.keys(body.articles)).toHaveLength(8);
+          expect(Object.keys(body.articles)).toHaveLength(9);
         });
     });
     test("for articles with invalid ids we should expect a 404 error", () => {
@@ -358,7 +359,36 @@ describe("NC News API testing", () => {
   });
   describe("DELETE/api/comments/id", () => {
     test("deletes the comment when given and id and responds with status 204", () => {
-      return request(app).delete("/api/comments/1").expect(204);
+      return request(app)
+        .delete("/api/comments/1")
+        .expect(204)
+        .then((response) => {
+          expect(response.noContent).toBe(true);
+        });
+    });
+    test("after a comment is deleted we should expect a 404 error code as the comment shouldn't exist", () => {
+      return request(app)
+        .get("/api/comments/1")
+        .expect(404)
+        .then((response) => {
+          expect(response.body.msg).toBe("URL not found");
+        });
+    });
+    test("returns 'Comment not found' when you try to delete a non existent comment", () => {
+      return request(app)
+        .delete("/api/comments/412")
+        .expect(404)
+        .then((response) => {
+          expect(response.body.msg).toBe(`Comment 412 was not found`);
+        });
+    });
+    test("returns 'Bad Request' when trying to delete with a word instead of a number", () => {
+      return request(app)
+        .delete("/api/comments/dawnblade")
+        .expect(400)
+        .then((response) => {
+          expect(response.body.msg).toBe(`Bad Request`);
+        });
     });
   });
   describe("GET/api/users", () => {
